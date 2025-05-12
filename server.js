@@ -1,13 +1,26 @@
 require('dotenv').config();
 const express = require('express');
-const cors=require('cors')
+const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const knex = require('knex');
 
 const app = express();
 const port = process.env.PORT || 3000;
-app.use(cors());
+
+// ✅ Updated CORS to allow 'null' origin for local file testing
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || origin === 'null') {
+      callback(null, true);
+    } else {
+      callback(null, true); // You can restrict this in production
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // Initialize Knex with PostgreSQL
@@ -146,17 +159,20 @@ app.delete('/products/:id', authenticateToken, async (req, res) => {
     res.status(500).send(err);
   }
 });
+
+// Health check
 app.get('/', (req, res) => {
   res.send('✅ API is running');
 });
-// Run migrations on app startup (for Render Free plan)
+
+// Run migrations and start server
 db.migrate.latest()
   .then(() => {
     console.log('✅ Database migrated');
     app.listen(port, () => {
       console.log(`🚀 Server running on port ${port}`);
       if (process.env.NODE_ENV === 'production') {
-        console.log(`🌐 Live at: https://apis-491k.onrender.com`);
+        console.log(`🌐 Live at: https://work-b42l.onrender.com/`);
       } else {
         console.log(`🔧 Local: http://localhost:${port}`);
       }
@@ -164,9 +180,5 @@ db.migrate.latest()
   })
   .catch((err) => {
     console.error('❌ Migration failed:', err);
-    process.exit(1); // Exit if migrations fail
+    process.exit(1);
   });
-
-app.listen(port, () => {
-  console.log(`🚀 Server running at http://localhost:${port}`);
-});
