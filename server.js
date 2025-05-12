@@ -1,12 +1,13 @@
 require('dotenv').config();
 const express = require('express');
+const cors=require('cors')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const knex = require('knex');
 
 const app = express();
 const port = process.env.PORT || 3000;
-
+app.use(cors());
 app.use(express.json());
 
 // Initialize Knex with PostgreSQL
