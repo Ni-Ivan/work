@@ -171,14 +171,16 @@ db.migrate.latest()
     console.log('✅ Database migrated');
     app.listen(port, () => {
       console.log(`🚀 Server running on port ${port}`);
-      if (process.env.NODE_ENV === 'production') {
-        console.log(`🌐 Live at: https://work-b42l.onrender.com/`);
-      } else {
-        console.log(`🔧 Local: http://localhost:${port}`);
-      }
+      const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
+      console.log(`🌐 Live at: ${baseUrl}`);
     });
   })
   .catch((err) => {
     console.error('❌ Migration failed:', err);
     process.exit(1);
   });
+
+// Optional: handle uncaught promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection:', reason);
+});
